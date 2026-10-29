@@ -1,0 +1,57 @@
+<?xml version="1.0"?>
+<robot name="ma360">
+  <!-- CAD mesh is centered about its bounding-box center. Original STEP envelope: approx 0.4205 x 0.3704 x 0.0994 m (ROS X/Y/Z). -->
+  <link name="base_link">
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="12.0"/>
+      <inertia ixx="0.20" ixy="0" ixz="0" iyy="0.30" iyz="0" izz="0.25"/>
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><mesh filename="package://ma360_urdf_ros1/meshes/ma360_body.stl" scale="0.001 0.001 0.001"/></geometry>
+      <material name="ma360_gray"><color rgba="0.72 0.75 0.78 1.0"/></material>
+    </visual>
+    <!-- Simplified collision envelope; tune after inspecting the robot in Gazebo. -->
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><box size="0.4205 0.3705 0.0995"/></geometry>
+    </collision>
+  </link>
+
+  <!-- Placeholder wheel joints for Gazebo differential-drive integration.
+       STEP was imported as one fused solid, so the real tracks/wheels are not separate animated links.
+       Adjust joint positions, wheel separation and diameter from the actual MA-360 chassis geometry. -->
+  <link name="left_wheel_link">
+    <inertial><origin xyz="0 0 0"/><mass value="0.05"/><inertia ixx="0.0001" ixy="0" ixz="0" iyy="0.0001" iyz="0" izz="0.0001"/></inertial>
+  </link>
+  <joint name="left_wheel_joint" type="continuous">
+    <parent link="base_link"/><child link="left_wheel_link"/>
+    <origin xyz="0 0.16 -0.025" rpy="0 0 0"/><axis xyz="0 1 0"/>
+  </joint>
+  <link name="right_wheel_link">
+    <inertial><origin xyz="0 0 0"/><mass value="0.05"/><inertia ixx="0.0001" ixy="0" ixz="0" iyy="0.0001" iyz="0" izz="0.0001"/></inertial>
+  </link>
+  <joint name="right_wheel_joint" type="continuous">
+    <parent link="base_link"/><child link="right_wheel_link"/>
+    <origin xyz="0 -0.16 -0.025" rpy="0 0 0"/><axis xyz="0 1 0"/>
+  </joint>
+
+  <gazebo>
+    <plugin name="gazebo_ros_diff_drive" filename="libgazebo_ros_diff_drive.so">
+      <rosDebugLevel>na</rosDebugLevel>
+      <updateRate>50</updateRate>
+      <leftJoint>left_wheel_joint</leftJoint>
+      <rightJoint>right_wheel_joint</rightJoint>
+      <wheelSeparation>0.32</wheelSeparation>
+      <wheelDiameter>0.12</wheelDiameter>
+      <commandTopic>cmd_vel</commandTopic>
+      <odometryTopic>odom</odometryTopic>
+      <odometryFrame>odom</odometryFrame>
+      <robotBaseFrame>base_link</robotBaseFrame>
+      <publishOdomTF>true</publishOdomTF>
+      <publishWheelTF>false</publishWheelTF>
+      <publishWheelJointState>true</publishWheelJointState>
+    </plugin>
+  </gazebo>
+</robot>
